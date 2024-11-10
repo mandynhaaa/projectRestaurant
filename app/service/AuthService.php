@@ -12,7 +12,7 @@ class AuthService
         $userName = Main::validateParameter($userName);
         $password = Main::validateParameter($password);
 
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        $hashedPassword = Main::hashPassword($password);
         $user = new User($userName, $hashedPassword);
 
         if ($user->selectByUsername()) {
@@ -28,7 +28,7 @@ class AuthService
         $userName = Main::validateParameter($userName);
         $password = Main::validateParameter($password);
 
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        $hashedPassword = Main::hashPassword($password);
         $user = new User($userName, $hashedPassword);
 
         $selectByUsername = $user->selectByUsername();
