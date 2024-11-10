@@ -2,7 +2,7 @@
 FROM php:8.3-apache
 
 # Copia a configuração do virtual host para o container
-COPY docker/php.cnf/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/php.conf/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Habilita o mod_rewrite
 RUN a2enmod rewrite
@@ -21,14 +21,16 @@ RUN apt-get update && \
 RUN docker-php-ext-install zip pdo_mysql
 
 # Copia o script de instalação do Composer
-COPY docker/php.cnf/install-composer.sh /install-composer.sh
+COPY docker/php.conf/install-composer.sh /install-composer.sh
 
 # Executa o script de instalação do Composer
 RUN bash /install-composer.sh && rm /install-composer.sh
 
 # Instale o Xdebug
-RUN pecl install xdebug \
+RUN pecl install xdebug-3.3.2 \
     && docker-php-ext-enable xdebug
+
+COPY docker/php.conf/xdebug.ini "$PHP_INI_DIR/conf.d/xdebug.ini"
 
 # Define o diretório de trabalho
 WORKDIR /var/www
