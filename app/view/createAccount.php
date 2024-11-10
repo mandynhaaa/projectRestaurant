@@ -1,5 +1,5 @@
 <?php namespace App\View;
-$title = 'Login';
+$title = 'Create Account';
 if (isset($error)) echo "<div class='alert alert-danger'>{$error}</div>"; 
 ?>
 <!DOCTYPE html>
@@ -10,9 +10,10 @@ if (isset($error)) echo "<div class='alert alert-danger'>{$error}</div>";
     <title>Login</title>
 </head>
 <body>
-    <form action="/login" method="POST">
+    <form action="/createAccount" method="POST">
         <input type="text" id="userName" name="userName">
         <input type="password" id="password" name="password">
+        <input type="password" id="confirmPassword" name="confirmPassword">
         <button type="submit">Confirmar</button>
     </form>
 </body>

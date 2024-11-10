@@ -8,8 +8,11 @@ class SQLGenerator {
     {
         $className = explode('\\', $class);
         $className = end($className);
+
+        $classNameWithoutNamespace = explode('::', $className)[0];
+        $value = strtolower($classNameWithoutNamespace);
     
-        $formattedName = str_replace('_', '', ucwords(strtolower($className), '_'));
+        $formattedName = str_replace('_', '', ucwords(strtolower($value), '_'));
         return lcfirst($formattedName);
     }
     
@@ -20,16 +23,16 @@ class SQLGenerator {
         Log::addLog($class . ": " . $query);
     }
 
-    public static function insertSQL(string $table, array $data)
+    public static function insertSQL(string $method, array $data)
     {
+        $table = self::formatTableName($method);
+
         if (empty($table)) {
             throw new \InvalidArgumentException('The table cannot be empty.');
         }
         if (empty($data) or count(array_keys($data)) !== count(array_values($data))) {
             throw new \InvalidArgumentException('The data array cannot be empty.');
         }
-
-        $table = self::formatTableName($table);
 
         $conn = null;
         $lastId = 0;
@@ -50,7 +53,7 @@ class SQLGenerator {
                 $stmt->bindValue($index + 1, $value);
             }
 
-            self::createQueryLog(__FUNCTION__, $query, $values);
+            self::createQueryLog($method, $query, $values);
             $stmt->execute();
             $lastId = $conn->lastInsertId();
         } catch (\PDOException $e) {
@@ -65,19 +68,19 @@ class SQLGenerator {
         if (empty($table)) {
             throw new \InvalidArgumentException('The table cannot be empty.');
         }
-        if (empty($data) or count(array_keys($data)) !== count(array_values($data))) {
+        if (empty($data) || count(array_keys($data)) !== count(array_values($data))) {
             throw new \InvalidArgumentException('The data array cannot be empty.');
         }
-
+    
         $conn = null;
         $idColumn = "id" . ucfirst(strtolower($table));
-
+    
         try {
             $conn = Connection::getConnection();
-
+    
             $set = "";
             $values = [];
-
+    
             foreach ($data as $column => $value) {
                 if ($set !== "") {
                     $set .= ", ";
@@ -85,22 +88,22 @@ class SQLGenerator {
                 $set .= trim($column) . " = ?";
                 $values[] = $value;
             }
+    
             $values[] = $id;
-
+    
             $query = sprintf("UPDATE %s SET %s WHERE %s = ?", $table, $set, $idColumn);
-
+    
             $stmt = $conn->prepare($query);
-            
+    
             foreach ($values as $index => $value) {
                 $stmt->bindValue($index + 1, $value);
             }
-
+    
             Log::addLog(__FUNCTION__ . ": " . $query);
             $stmt->execute();
         } catch (\PDOException $e) {
             throw new \Exception($e->getMessage());
         }
-
         return true;
     }
 
@@ -114,39 +117,39 @@ class SQLGenerator {
         }
         $conn = null;
         $idColumn = "id" . ucfirst(strtolower($table));
-    
+
         try {
             $conn = Connection::getConnection();
             
             $query = sprintf("DELETE FROM %s WHERE %s = ?", $table, $idColumn);
             $stmt = $conn->prepare($query);
             $stmt->bindValue(1, $id, \PDO::PARAM_INT);
-    
+
             Log::addLog(__FUNCTION__ . ": " . $query);
             $stmt->execute();
         } catch (\PDOException $e) {
             throw new \Exception($e->getMessage());
         }
-    
+
         return true;
     }
 
-    public static function selectSQL(
-        string|null $columns, 
-        string $table, 
-        string|null $join = "", 
-        array $where = []
-    ) {
+    public static function selectSQL(string|null $columns, string $method, string|null $join = "", array $where = [])
+    {
+        $table = self::formatTableName($method);
+    
         if (empty($table)) {
             throw new \InvalidArgumentException('The table cannot be empty.');
         }
-    
+
         $whereClause = "";
+        $bindings = [];
         if (!empty($where)) {
             $conditions = [];
             foreach ($where as $param => $value) {
                 $field = ltrim($param, ':');
-                $conditions[] = "$field = $param";
+                $conditions[] = "$field = :$param";
+                $bindings[":$param"] = $value;
             }
             $whereClause = "WHERE " . implode(" AND ", $conditions);
         }
@@ -165,7 +168,12 @@ class SQLGenerator {
     
             Log::addLog(__FUNCTION__ . ": " . $query);
             $stmt = $conn->prepare($query);
-            $stmt->execute($where);
+    
+            foreach ($bindings as $param => $value) {
+                $stmt->bindValue($param, $value);
+            }
+    
+            $stmt->execute();
     
             $columnCount = $stmt->columnCount();
             for ($i = 0; $i < $columnCount; $i++) {
@@ -173,16 +181,14 @@ class SQLGenerator {
                 $columnNames[] = $meta['name'];
             }
     
-            while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 $resultList[] = $row;
             }
         } catch (\PDOException $e) {
             throw new \Exception($e->getMessage());
         }
-    
-        return array_merge([$columnNames], $resultList);
+        return empty($resultList) ? null : $resultList;
     }
-    
 
     public static function getLastId(string $table)
     {
@@ -207,8 +213,7 @@ class SQLGenerator {
         }
     
         return $lastId;
-    }
-    
+    }    
 }
 
 ?>

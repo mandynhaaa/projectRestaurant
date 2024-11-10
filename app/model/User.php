@@ -60,11 +60,11 @@ class User implements Table {
         return $this;
     }
 
-    public function __construct(string $userName, string $userPassword, int $userPermision)
+    public function __construct(string $userName, string $userPassword, int $userPermission = 0)
     {
         $this->userName = $userName;
         $this->userPassword = $userPassword;
-        $this->userPermission = $userPermision;
+        $this->userPermission = $userPermission;
     }
 
     public function insert() : int
@@ -74,7 +74,7 @@ class User implements Table {
             'userPassword' => $this->userPassword,
             'userPermission' => $this->userPermission
         ];
-        return SQLGenerator::insertSQL(__CLASS__, $data);
+        return SQLGenerator::insertSQL(__METHOD__, $data);
     }
 
     public function update(int $id) : bool
@@ -107,4 +107,8 @@ class User implements Table {
         return SQLGenerator::selectSQL(null, __CLASS__, null, ['id' => $id]);
     }
 
+    public function selectByUsername()
+    {
+        return SQLGenerator::selectSQL(null, __CLASS__, null, ['userName' => $this->userName]);
+    }
 }
