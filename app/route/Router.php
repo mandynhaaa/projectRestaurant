@@ -3,6 +3,7 @@
 namespace App\Route;
 
 use App\Service\Container;
+use App\Route\Middleware;
 
 class Router {
     protected $routes = [];
@@ -13,15 +14,15 @@ class Router {
         $this->container = $container;
     }
 
-    public function addRoute($method, $uri, $handler) {
+    public function addRoute(string $method, string $uri, mixed $handler) {
         $this->routes[$method][$uri] = $handler;
     }
 
-    public function addMiddleware($uri, $middleware) {
+    public function addMiddleware(string $uri, Middleware $middleware) {
         $this->middlewares[$uri] = $middleware;
     }
 
-    public function resolve($uri, $method) {
+    public function resolve(string $uri, string $method) {
         if (isset($this->routes[$method][$uri])) {
             if (isset($this->middlewares[$uri])) {
                 $middleware = $this->middlewares[$uri];
@@ -39,14 +40,6 @@ class Router {
         }
         http_response_code(404);
         echo "404 - Route not found";
-    }
-    
-    public function get($uri, $handler) {
-        $this->addRoute('GET', $uri, $handler);
-    }
-
-    public function post($uri, $handler) {
-        $this->addRoute('POST', $uri, $handler);
     }
 
     public function defineRoutes() {

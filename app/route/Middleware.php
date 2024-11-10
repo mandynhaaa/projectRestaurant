@@ -4,7 +4,7 @@ namespace App\Route;
 
 class Middleware
 {
-    public function handle($request, $next)
+    public function handle(array $request, callable $next)
     {
         if (!$this->isAuthenticated()) {
             header('Location: /login');
