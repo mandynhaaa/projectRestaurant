@@ -11,9 +11,9 @@ if (isset($error)) echo "<div class='alert alert-danger'>{$error}</div>";
 </head>
 <body>
     <form action="/createAccount" method="POST">
-        <input type="text" id="userName" name="userName">
-        <input type="password" id="password" name="password">
-        <input type="password" id="confirmPassword" name="confirmPassword">
+        <input type="email" id="userEmail" name="userEmail" required>
+        <input type="password" id="password" name="password" required>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
         <button type="submit">Confirmar</button>
     </form>
 </body>

@@ -7,13 +7,13 @@ use App\Model\User;
 
 class AuthService
 {
-    public function createAccount(string $userName, string $password): bool
+    public function createAccount(string $userEmail, string $password): bool
     {
-        $userName = Main::validateParameter($userName);
+        $userEmail = Main::validateEmail($userEmail);
         $password = Main::validateParameter($password);
 
         $hashedPassword = Main::hashPassword($password);
-        $user = new User($userName, $hashedPassword);
+        $user = new User($userEmail, $hashedPassword);
 
         if ($user->selectByUsername()) {
             return false;
@@ -23,13 +23,13 @@ class AuthService
         return true;
     }
 
-    public function login(string $userName, string $password): bool
+    public function login(string $userEmail, string $password): bool
     {
-        $userName = Main::validateParameter($userName);
+        $userEmail = Main::validateEmail($userEmail);
         $password = Main::validateParameter($password);
 
         $hashedPassword = Main::hashPassword($password);
-        $user = new User($userName, $hashedPassword);
+        $user = new User($userEmail, $hashedPassword);
 
         $selectByUsername = $user->selectByUsername();
         if (!$selectByUsername) {
@@ -42,7 +42,7 @@ class AuthService
         }
 
         if ($user && password_verify($password, $userPassword)) {
-            $_SESSION['user_id'] = $userName;
+            $_SESSION['userId'] = $userEmail;
             return true;
         }
         return false;
@@ -50,7 +50,7 @@ class AuthService
 
     public function logout(): void
     {
-        unset($_SESSION['user_id']);
+        unset($_SESSION['userId']);
         session_destroy();
     }
 }

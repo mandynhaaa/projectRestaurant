@@ -15,6 +15,6 @@ class Middleware
 
     private function isAuthenticated()
     {
-        return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+        return isset($_SESSION['userId']) && !empty($_SESSION['userId']);
     }
 }

@@ -8,7 +8,7 @@ use Connection\SQLGenerator;
 class User implements Table {
 
     protected int $idUser;
-    protected string $userName;
+    protected string $userEmail;
     protected string $userPassword;
     protected int $userPermission;
 
@@ -24,14 +24,14 @@ class User implements Table {
         return $this;
     }
 
-    public function getUserName() 
+    public function getUserEmail() 
     {
-        return $this->userName;
+        return $this->userEmail;
     }
 
-    public function setUserName($userName)
+    public function setUserEmail($userEmail)
     {
-        $this->userName = $userName;
+        $this->userEmail = $userEmail;
 
         return $this;
     }
@@ -60,9 +60,9 @@ class User implements Table {
         return $this;
     }
 
-    public function __construct(string $userName, string $userPassword, int $userPermission = 0)
+    public function __construct(string $userEmail, string $userPassword, int $userPermission = 0)
     {
-        $this->userName = $userName;
+        $this->userEmail = $userEmail;
         $this->userPassword = $userPassword;
         $this->userPermission = $userPermission;
     }
@@ -70,7 +70,7 @@ class User implements Table {
     public function insert() : int
     {
         $data = [
-            'userName' => $this->userName,
+            'userEmail' => $this->userEmail,
             'userPassword' => $this->userPassword,
             'userPermission' => $this->userPermission
         ];
@@ -80,7 +80,7 @@ class User implements Table {
     public function update(int $id) : bool
     {
         $data = [
-            'userName' => $this->userName,
+            'userEmail' => $this->userEmail,
             'userPassword' => $this->userPassword,
             'userPermision' => $this->userPermission
         ];
@@ -95,7 +95,7 @@ class User implements Table {
     public function select()
     {
         $where = [
-            'userName' => $this->userName,
+            'userEmail' => $this->userEmail,
             'userPassword' => $this->userPassword,
             'userPermission' => $this->userPermission
         ];
@@ -109,6 +109,6 @@ class User implements Table {
 
     public function selectByUsername()
     {
-        return SQLGenerator::selectSQL(null, __CLASS__, null, ['userName' => $this->userName]);
+        return SQLGenerator::selectSQL(null, __CLASS__, null, ['userEmail' => $this->userEmail]);
     }
 }

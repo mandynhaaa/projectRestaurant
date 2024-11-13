@@ -28,7 +28,7 @@ class Auth extends Controller {
 
     public function createAccount(array $data): void
     {
-        $userName = $data['userName'];
+        $userEmail = $data['userEmail'];
         $password = $data['password'];
         $confirmPassword = $data['confirmPassword'];
 
@@ -37,7 +37,7 @@ class Auth extends Controller {
             return;
         }
 
-        if ($this->authService->createAccount($userName, $password)) {
+        if ($this->authService->createAccount($userEmail, $password)) {
             header("Location: /home");
             exit;
         } else {
@@ -47,10 +47,10 @@ class Auth extends Controller {
 
     public function login(array $data): void
     {
-        $userName = $data['userName'];
+        $userEmail = $data['userEmail'];
         $password = $data['password'];
 
-        if ($this->authService->login($userName, $password)) {
+        if ($this->authService->login($userEmail, $password)) {
             header("Location: /home");
             exit;
         } else {
